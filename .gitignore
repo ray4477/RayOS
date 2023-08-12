@@ -1,0 +1,9 @@
+# ignore all .o files
+*.o
+
+# ignore build utilities
+build-binutils/
+build-gcc/
+binutils-2.41/
+gcc/
+binutils-gdb/
