@@ -8,3 +8,5 @@ binutils-2.41/
 gcc/
 binutils-gdb/
 buildtools/
+gcc-13.2.0.tar.xz
+gcc-13.2.0
