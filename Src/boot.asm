@@ -12,6 +12,10 @@ KERNEL_LOCATION equ 0x1000
 
     call readDisk
 
+    mov ah, 0x0
+    mov al, 0x3
+    int 0x10 
+
     cli
     lgdt [gdt_desc]
     mov eax, cr0
@@ -29,9 +33,7 @@ KERNEL_LOCATION equ 0x1000
 
 [BITS 32]
 protectedMode:
-    mov al, 'A'
-    mov ah, 0x0f
-    mov [0xB8000], ax
+
 
     jmp KERNEL_LOCATION
     jmp $                                    

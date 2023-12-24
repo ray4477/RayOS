@@ -1,5 +1,5 @@
 readDisk:
-    mov al, 5           ;number of sectors to read
+    mov al, 20           ;number of sectors to read
     mov ah, 2           ;read sectors
     mov ch, 0           ;cylinder #
     mov cl, 2           ;sector # to start reading
