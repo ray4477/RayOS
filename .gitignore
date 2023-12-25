@@ -1,6 +1,6 @@
 # ignore all .o files
 *.o
-
+*.bin
 # ignore build utilities
 build-binutils/
 build-gcc/
