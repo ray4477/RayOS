@@ -2,7 +2,7 @@
 #include <stddef.h>
 #include <stdint.h>
  
-//#include "../inc/page.h"
+#include "../inc/page.h"
  
 /* Hardware text mode color constants. */
 enum vga_color {
@@ -98,11 +98,16 @@ void terminal_writestring(const char* data)
  
 void main(void) 
 {
-	*(char*)0xb8000 = 'Q';
+
 	/* Initialize terminal interface */
 	terminal_initialize();
  
 	/* Newline support is left as an exercise. */
 	terminal_writestring("Hello, kernel World!\n");
+
+	initialize_paging();
+
+	terminal_writestring("Paging initialized");
+
 	while(1);
 }
