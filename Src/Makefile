@@ -1,36 +1,50 @@
 #Makefile
 
-build: build/kernel.bin
+#variables
+LD = i686-elf-ld
+KERNEL_SRC_DIR = kernel/src
+LOADER_SRC_DIR = loader
+OBJ_DIR = build
 
-#build bootloader bin
-build/bin/boot.bin: ./boot.asm ./library/*.asm
-	mkdir -p build && \
-	mkdir -p build/bin && \
-	nasm -fbin $< -o $@
+LDFLAGS = -T linker.ld --oformat binary
 
-# #link binaries into kernel.bin
-# build/kernel.bin: build/bin/boot.bin
-# 	cat $^ > $@
+SRCS_C = $(wildcard $(KERNEL_SRC_DIR)/*.c)
+OBJS_C = $(patsubst $(KERNEL_SRC_DIR)/%.c,$(OBJ_DIR)/%.bin,$(SRCS_C))
+SRCS_ASM = $(wildcard $(KERNEL_SRC_DIR)/*.asm)
+OBJS_ASM = $(patsubst $(KERNEL_SRC_DIR)/%.asm,$(OBJ_DIR)/%.bin,$(SRCS_ASM))
 
-#build kernel entry pt
-build/bin/start.bin: ./library/start.asm
-	mkdir -p build && \
-	mkdir -p build/bin && \
-	nasm -felf $< -o $@
+SRCS_LOADER = $(wildcard $(LOADER_SRC_DIR)/*.asm)
+OBJS_LOADER = $(patsubst $(LOADER_SRC_DIR)/%.asm,$(OBJ_DIR)/%.bin,$(SRCS_LOADER))
 
-#build main.c
-build/bin/main.bin: ./main.c 
-	mkdir -p build && \
-	mkdir -p build/bin && \
+TARGET = build/kernel.bin
+
+COMBINED_EXE = build/kernel.exe
+
+all: $(TARGET)
+
+#Link object files
+$(TARGET): $(OBJS_C) $(OBJS_ASM) $(OBJS_LOADER)
+	i686-elf-ld -o $(TARGET) -Ttext 0x1000 $(OBJS_ASM) $(OBJS_C)  --oformat binary
+	cat $(OBJS_LOADER) $(TARGET) > $(COMBINED_EXE)
+
+#build C files
+$(OBJ_DIR)/%.bin: $(KERNEL_SRC_DIR)/%.c | $(OBJ_DIR)
 	i686-elf-gcc -ffreestanding -m32 -g -c $< -o $@
 
-#link 
-build/kernel.bin: ./build/bin/main.bin ./build/bin/start.bin ./build/bin/boot.bin
-	i686-elf-ld -o build/bin/kernel.bin -Ttext 0x1000 build/bin/start.bin build/bin/main.bin --oformat binary
-	cat build/bin/boot.bin build/bin/kernel.bin > build/kernel.bin
+#build asm files (kernel)
+$(OBJ_DIR)/%.bin: $(KERNEL_SRC_DIR)/%.asm | $(OBJ_DIR)
+	nasm -felf $< -o $@
+
+#build asm files (bootloader)
+$(OBJ_DIR)/%.bin: $(LOADER_SRC_DIR)/%.asm | $(OBJ_DIR)
+	nasm -fbin $< -o $@
+
+#create build/ folder
+$(OBJ_DIR):
+	mkdir -p $(OBJ_DIR)
 
 run:
-	qemu-system-i386 -drive format=raw,file=build/kernel.bin,index=0,if=floppy, -m 128M
+	qemu-system-i386 -drive format=raw,file=build/kernel.exe,index=0,if=floppy, -m 128M
 
 clean:
 	rm -rf build

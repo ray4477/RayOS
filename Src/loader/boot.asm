@@ -25,11 +25,11 @@ KERNEL_LOCATION equ 0x1000
     jmp code_Segment:protectedMode
     jmp $
 
-%include "./library/gdt.asm"
+%include "loader/library/gdt.asm"
 
-%include "./library/printString.asm"
+%include "loader/library/printString.asm"
 
-%include "./library/readDisk.asm"
+%include "loader/library/readDisk.asm"
 
 [BITS 32]
 protectedMode:
