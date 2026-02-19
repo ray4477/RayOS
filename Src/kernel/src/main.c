@@ -77,11 +77,17 @@ void terminal_putentryat(char c, uint8_t color, size_t x, size_t y)
  
 void terminal_putchar(char c) 
 {
-	terminal_putentryat(c, terminal_color, terminal_column, terminal_row);
-	if (++terminal_column == VGA_WIDTH) {
+	if (c == '\n') {
 		terminal_column = 0;
 		if (++terminal_row == VGA_HEIGHT)
 			terminal_row = 0;
+	} else {
+		terminal_putentryat(c, terminal_color, terminal_column, terminal_row);
+		if (++terminal_column == VGA_WIDTH) {
+			terminal_column = 0;
+			if (++terminal_row == VGA_HEIGHT)
+				terminal_row = 0;
+		}
 	}
 }
  
@@ -105,9 +111,21 @@ void main(void)
 	/* Newline support is left as an exercise. */
 	terminal_writestring("Hello, kernel World!\n");
 
+	terminal_writestring("Paging status before: ");
+	if (isPagingEnabled()) {
+		terminal_writestring("ENABLED\n");
+	} else {
+		terminal_writestring("DISABLED\n");
+	}
+
 	initialize_paging();
 
-	terminal_writestring("Paging initialized");
+	terminal_writestring("Paging status after: ");
+	if (isPagingEnabled()) {
+		terminal_writestring("ENABLED\n");
+	} else {
+		terminal_writestring("DISABLED\n");
+	}
 
 	while(1);
 }
